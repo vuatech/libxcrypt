@@ -1,12 +1,18 @@
+%define name 	xcrypt
+%define api 	3
+%define major	1
+%define libname	%mklibname %{name} %{api} %{major}
+%define develname	%mklibname %{name} -d
 
-Name:           libxcrypt
+
+Name:           %{libname}
 License:        LGPL v2.1 or later; Public Domain, Freeware
 Group:          System/Libraries
 AutoReqProv:    on
 Version:        3.0.2
-Release:        %mkrel 1
+Release:        %mkrel 2
 Summary:        Crypt Library for DES, MD5, Blowfish and others
-Source:         libxcrypt-%{version}.tar.bz2
+Source:         %{libname}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -16,12 +22,12 @@ blowfish encryption.
 
 
 
-%package devel
+%package -n     %{libname}
 License:        LGPL v2.1 or later; Public Domain, Freeware
 Summary:        Development Include Files and Libraries for enhanced crypt functionality
 Group:          Development/C
 Requires:       libxcrypt = %{version}
-AutoReqProv:    on
+
 
 %description devel
 libxcrypt is a replacement for libcrypt, which comes with the GNU C
