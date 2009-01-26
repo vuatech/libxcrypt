@@ -19,7 +19,7 @@ blowfish encryption.
 %package devel
 License:        LGPL v2.1 or later; Public Domain, Freeware
 Summary:        Development Include Files and Libraries for enhanced crypt functionality
-Group:          Development/Libraries/C and C++
+Group:          Development/C
 Requires:       libxcrypt = %{version}
 AutoReqProv:    on
 
