@@ -4,14 +4,12 @@
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	3.0.2
-Release:	%mkrel 4
+Version:	3.1.1
+Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
-Url:		provide_url_to_some_site
-# where is full url to the source ?
-Source0:	%{name}-%{version}.tar.bz2
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+Url:		https://github.com/besser82/libxcrypt
+Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
 
 %description
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
@@ -30,8 +28,8 @@ blowfish encryption.
 %package -n %{develname}
 Summary:	Development libraries for %{name}
 Group:          Development/C
-Requires:	%{libname} = %{version}-%{release}
-Provides:	%{name} = %{version}-%{release}
+Requires:	%{libname} = %{EVRD}
+Provides:	%{name} = %{EVRD}
 
 %description -n %{develname}
 This package contains the header files and static libraries necessary
@@ -42,9 +40,8 @@ to develop software using %{name}.
 
 %build
 export CFLAGS="%{optflags} -Wno-cast-align"
-%configure2_5x  \
-	--libdir=/%{_lib} \
-	--disable-static
+%configure  \
+	--libdir=/%{_lib}
 
 %make
 
@@ -55,26 +52,14 @@ rm %{buildroot}/%{_lib}/libxcrypt.{so,la}
 rm %{buildroot}/%{_lib}/xcrypt/lib*.{so,la}
 ln -sf ../../%{_lib}/libxcrypt.so.2 %{buildroot}%{_libdir}/libxcrypt.so
 
-%if %mdkversion < 200900
-%post -n %{libname} -p /sbin/ldconfig
-%endif
-
-%if %mdkversion < 200900
-%postun -n %{libname} -p /sbin/ldconfig
-%endif
-
-%clean
-rm -rf %{buildroot}
 
 %files -n %{libname}
-%defattr(-,root,root)
-%doc README NEWS README.bcrypt README.ufc-crypt
 /%{_lib}/lib*.so.%{major}*
 %dir /%{_lib}/xcrypt
 /%{_lib}/xcrypt/lib*.so.*
 
 %files -n %{develname}
-%defattr(-,root,root)
+%doc README NEWS README.bcrypt README.ufc-crypt
 %{_prefix}/include/*.h
 %{_libdir}/lib*.so
 
