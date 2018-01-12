@@ -39,7 +39,8 @@ to develop software using %{name}.
 %setup -q
 
 %build
-export CFLAGS="%{optflags} -Wno-cast-align"
+./bootstrap.sh
+
 %configure  \
 	--libdir=/%{_lib}
 
