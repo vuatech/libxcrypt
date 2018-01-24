@@ -9,7 +9,9 @@ Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
-Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
+Source0:	https://github.com/besser82/libxcrypt/archive/v%{version}.tar.gz
+Patch0:		libxcrypt-3.1.1-clang.patch 
+Patch1:		libxcrypt-3.1.1-dl-linkage.patch
 
 %description
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
@@ -37,11 +39,14 @@ to develop software using %{name}.
 
 %prep
 %setup -q
+%apply_patches
 
 %build
 ./bootstrap.sh
 
 %configure  \
+	--enable-Wno-cast-align \
+	--enable-Wno-null-pointer-arithmetic \
 	--libdir=/%{_lib}
 
 %make
@@ -49,8 +54,8 @@ to develop software using %{name}.
 %install
 %makeinstall_std
 mkdir -p %{buildroot}%{_libdir}
-rm %{buildroot}/%{_lib}/libxcrypt.{so,la}
-rm %{buildroot}/%{_lib}/xcrypt/lib*.{so,la}
+rm %{buildroot}/%{_lib}/libxcrypt.so
+rm %{buildroot}/%{_lib}/xcrypt/lib*.so
 ln -sf ../../%{_lib}/libxcrypt.so.2 %{buildroot}%{_libdir}/libxcrypt.so
 
 
