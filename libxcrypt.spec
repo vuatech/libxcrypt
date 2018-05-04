@@ -42,7 +42,7 @@ to develop software using %{name}.
 %apply_patches
 
 %build
-./bootstrap.sh
+autoreconf -fiv
 
 %configure  \
 	--enable-Wno-cast-align \
