@@ -12,8 +12,6 @@ License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
 Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
-Patch0:		libxcrypt-3.1.1-clang.patch 
-Patch1:		libxcrypt-3.1.1-dl-linkage.patch
 
 %description
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
