@@ -54,13 +54,10 @@ autoreconf -fiv
 %install
 %makeinstall_std
 mkdir -p %{buildroot}%{_libdir}
-rm %{buildroot}/%{_lib}/xcrypt/lib*.so
 ln -sf ../../%{_lib}/libxcrypt.so.2 %{buildroot}%{_libdir}/libxcrypt.so
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
-%dir /%{_lib}/xcrypt
-/%{_lib}/xcrypt/lib*.so.*
 
 %files -n %{develname}
 %doc README NEWS README.bcrypt README.ufc-crypt
