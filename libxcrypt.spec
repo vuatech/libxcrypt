@@ -54,7 +54,6 @@ autoreconf -fiv
 %install
 %makeinstall_std
 mkdir -p %{buildroot}%{_libdir}
-rm %{buildroot}/%{_lib}/libxcrypt.so
 rm %{buildroot}/%{_lib}/xcrypt/lib*.so
 ln -sf ../../%{_lib}/libxcrypt.so.2 %{buildroot}%{_libdir}/libxcrypt.so
 
