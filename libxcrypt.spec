@@ -73,7 +73,7 @@ find %{buildroot} -name 'libow*' -print -delete
 %files -n %{develname}
 %doc AUTHORS NEWS README.md
 %{_includedir}/*.h
-%{_lib}/libcrypt.so
-%{_libdir}/pkgconfig/libxcrypt.pc
+/%{_lib}/libcrypt.so
+%{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/crypt_*.3*
 %{_mandir}/man5/crypt.5*
