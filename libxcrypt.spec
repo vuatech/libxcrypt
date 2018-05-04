@@ -47,17 +47,19 @@ to develop software using %{name}.
 autoreconf -fiv
 
 %configure  \
-	--libdir=/%{_lib}
+    --libdir=/%{_lib}
 
 %make
 
 %install
 %makeinstall_std
+mkdir -p %{buildroot}%{_libdir}
+ln -sf ../../%{_lib}/libcrypt.so.%{major} %{buildroot}%{_libdir}/libxcrypt.so
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
 
 %files -n %{develname}
-%doc README NEWS README.bcrypt README.ufc-crypt
+%doc AUTHORS NEWS README.md
 %{_prefix}/include/*.h
 %{_libdir}/lib*.so
