@@ -12,6 +12,7 @@ License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
 Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
+BuildRequires:	findutils
 
 %description
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
@@ -47,19 +48,32 @@ to develop software using %{name}.
 autoreconf -fiv
 
 %configure  \
-    --libdir=/%{_lib}
+    --libdir=/%{_lib} \
+    --enable-shared \
+    --enable-static \
+    --enable-obsolete-api \
+    --enable-weak-hashes
 
 %make
 
 %install
 %makeinstall_std
-mkdir -p %{buildroot}%{_libdir}
-ln -sf ../../%{_lib}/libcrypt.so.%{major} %{buildroot}%{_libdir}/libxcrypt.so
+
+# Get rid of libtool crap.
+find %{buildroot} -name '*.la' -print -delete
+
+# We do not need libowcrypt.*, since it is a SUSE
+# compat thing.  Software needing it to be build can
+# be patched easily to just link against '-lcrypt'.
+find %{buildroot} -name 'libow*' -print -delete
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
 
 %files -n %{develname}
 %doc AUTHORS NEWS README.md
-%{_prefix}/include/*.h
-%{_libdir}/lib*.so
+%{_includedir}/*.h
+%{_lib}/libcrypt.so
+%{_libdir}/pkgconfig/libxcrypt.pc
+%{_mandir}/man3/crypt_*.3*
+%{_mandir}/man5/crypt.5*
