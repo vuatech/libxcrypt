@@ -58,6 +58,8 @@ autoreconf -fiv
 
 %install
 %makeinstall_std
+mkdir -p %{buildroot}%{_libdir}/pkgconfig/
+mv /%{_lib}/pkgconfig/*.pc %{_libdir}/pkgconfig/
 
 # Get rid of libtool crap.
 find %{buildroot} -name '*.la' -print -delete
