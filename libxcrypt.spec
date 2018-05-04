@@ -1,6 +1,6 @@
-%define major 2
-%define libname %mklibname xcrypt %{major}
-%define develname %mklibname xcrypt -d
+%define major 1
+%define libname %mklibname crypt %{major}
+%define develname %mklibname crypt -d
 
 %global optflags %{optflags} -Ofast -falign-functions=32 -fno-math-errno -fno-trapping-math
 
@@ -21,6 +21,7 @@ blowfish encryption.
 %package -n %{libname}
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Group:		System/Libraries
+Obsoletes:	%{mklibname xcrypt 2} < 4.0.0
 
 %description -n %{libname}
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
@@ -32,6 +33,7 @@ Summary:	Development libraries for %{name}
 Group:		Development/C
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name} = %{EVRD}
+Obsoletes:	%{mklibname xcrypt -d} < 4.0.0
 
 %description -n %{develname}
 This package contains the header files and static libraries necessary
@@ -45,16 +47,12 @@ to develop software using %{name}.
 autoreconf -fiv
 
 %configure  \
-	--enable-Wno-cast-align \
-	--enable-Wno-null-pointer-arithmetic \
 	--libdir=/%{_lib}
 
 %make
 
 %install
 %makeinstall_std
-mkdir -p %{buildroot}%{_libdir}
-ln -sf ../../%{_lib}/libxcrypt.so.2 %{buildroot}%{_libdir}/libxcrypt.so
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
