@@ -40,7 +40,7 @@ Provides:	%{name} = %{EVRD}
 Obsoletes:	%{mklibname xcrypt -d} < 4.0.0
 Provides:	glibc-crypt_blowfish-devel = 1.3
 Provides:	eglibc-crypt_blowfish-devel = 1.3
-Conflicts:	glibc-devel- < 6:2.27-10
+Conflicts:	glibc-devel < 6:2.27-10
 
 %description -n %{develname}
 This package contains the header files and static libraries necessary
