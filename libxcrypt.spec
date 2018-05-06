@@ -23,6 +23,9 @@ blowfish encryption.
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Group:		System/Libraries
 Obsoletes:	%{mklibname xcrypt 2} < 4.0.0
+Provides:	glibc-crypt_blowfish = 1.3
+Provides:	eglibc-crypt_blowfish = 1.3
+Conflicts:	glibc < 6:2.27-10
 
 %description -n %{libname}
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
@@ -35,6 +38,9 @@ Group:		Development/C
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name} = %{EVRD}
 Obsoletes:	%{mklibname xcrypt -d} < 4.0.0
+Provides:	glibc-crypt_blowfish-devel = 1.3
+Provides:	eglibc-crypt_blowfish-devel = 1.3
+Conflicts:	glibc-devel- < 6:2.27-10
 
 %description -n %{develname}
 This package contains the header files and static libraries necessary
