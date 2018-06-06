@@ -1,6 +1,7 @@
 %define major 1
 %define libname %mklibname crypt %{major}
 %define develname %mklibname crypt -d
+%define staticname %mklibname crypt -d -s
 
 %global optflags %{optflags} -Ofast -falign-functions=32 -fno-math-errno -fno-trapping-math
 
@@ -12,6 +13,8 @@ License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
 Source0:	https://github.com/besser82/libxcrypt/archive/v%{version}.tar.gz
+Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
+BuildRequires:	gcc
 BuildRequires:	findutils
 
 %description
@@ -41,8 +44,18 @@ Provides:	glibc-crypt_blowfish-devel = 1.3
 Provides:	eglibc-crypt_blowfish-devel = 1.3
 
 %description -n %{develname}
-This package contains the header files and static libraries necessary
+This package contains the header files necessary
 to develop software using %{name}.
+
+%package -n %{staticname}
+Summary:	Static libraries for %{name}
+Group:		Development/C
+Requires:	%{develname} = %{EVRD}
+
+%description -n %{staticname}
+This package contains the static libraries necessary
+to develop software using %{name} without requiring
+%{name} to be installed on the target system.
 
 %prep
 %setup -q
@@ -56,7 +69,6 @@ autoreconf -fiv
 # does show up in objdump -x.
 # For now, let's work around it by using gcc...
 export CC=gcc
-export CXX=g++
 %configure  \
     --libdir=/%{_lib} \
     --enable-shared \
@@ -70,9 +82,7 @@ export CXX=g++
 %makeinstall_std
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/pkgconfig/*.pc %{buildroot}%{_libdir}/pkgconfig/
-
-# Get rid of libtool crap.
-#find %{buildroot} -name '*.la' -print -delete
+mv %{buildroot}/%{_lib}/*.a %{buildroot}%{_libdir}/
 
 # We do not need libowcrypt.*, since it is a SUSE
 # compat thing.  Software needing it to be build can
@@ -86,7 +96,9 @@ find %{buildroot} -name 'libow*' -print -delete
 %doc AUTHORS NEWS README.md
 %{_includedir}/*.h
 /%{_lib}/libcrypt.so
-/%{_lib}/libcrypt.a
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/crypt_*.3*
 %{_mandir}/man5/crypt.5*
+
+%files -n %{staticname}
+%{_libdir}/libcrypt.a

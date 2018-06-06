@@ -1,0 +1,63 @@
+diff -up libxcrypt-4.0.1/crypt-pbkdf1-sha1.c.omv~ libxcrypt-4.0.1/crypt-pbkdf1-sha1.c
+--- libxcrypt-4.0.1/crypt-pbkdf1-sha1.c.omv~	2018-06-06 20:56:59.117220604 +0200
++++ libxcrypt-4.0.1/crypt-pbkdf1-sha1.c	2018-06-06 21:00:17.264231458 +0200
+@@ -131,7 +131,10 @@ crypt_sha1_rn (const char *phrase, const
+     }
+ 
+   const char *sp;
+-  uint8_t *ep;
++  union {
++    uint8_t *u;
++    char *s;
++  } ep;
+   unsigned long ul;
+   size_t sl;
+   size_t pl;
+@@ -154,13 +157,13 @@ crypt_sha1_rn (const char *phrase, const
+     {
+       setting += strlen (magic);
+       /* and get the iteration count */
+-      iterations = (unsigned long)strtoul (setting, (char **)&ep, 10);
+-      if (*ep != '$')
++      iterations = (unsigned long)strtoul (setting, &ep.s, 10);
++      if (*ep.u != '$')
+         {
+           errno = EINVAL;
+           return;  /* invalid input */
+         }
+-      setting = (char *)ep + 1;  /* skip over the '$' */
++      setting = ep.s + 1;  /* skip over the '$' */
+     }
+   else
+     {
+@@ -197,7 +200,7 @@ crypt_sha1_rn (const char *phrase, const
+   /* Now output... */
+   pl = (size_t)snprintf ((char *)output, o_size, "%s%lu$%s$",
+                          magic, iterations, salt);
+-  ep = output + pl;
++  ep.u = output + pl;
+ 
+   /* Every 3 bytes of hash gives 24 bits which is 4 base64 chars */
+   for (i = 0; i < SHA1_SIZE - 3; i += 3)
+@@ -205,16 +208,16 @@ crypt_sha1_rn (const char *phrase, const
+       ul = (unsigned long)((hmac_buf[i+0] << 16) |
+                            (hmac_buf[i+1] << 8) |
+                            hmac_buf[i+2]);
+-      to64 (ep, ul, 4);
+-      ep += 4;
++      to64 (ep.u, ul, 4);
++      ep.u += 4;
+     }
+   /* Only 2 bytes left, so we pad with byte0 */
+   ul = (unsigned long)((hmac_buf[SHA1_SIZE - 2] << 16) |
+                        (hmac_buf[SHA1_SIZE - 1] << 8) |
+                        hmac_buf[0]);
+-  to64 (ep, ul, 4);
+-  ep += 4;
+-  *ep = '\0';
++  to64 (ep.u, ul, 4);
++  ep.u += 4;
++  *ep.u = '\0';
+ 
+   /* Don't leave anything around in vm they could use. */
+   XCRYPT_SECURE_MEMSET (scratch, s_size)
