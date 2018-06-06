@@ -7,7 +7,7 @@
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.0.1
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -51,6 +51,12 @@ to develop software using %{name}.
 %build
 autoreconf -fiv
 
+# FIXME if libxcrypt is built with clang, building the user-manager package
+# fails complaining about an undefined reference to 'crypt' even though it
+# does show up in objdump -x.
+# For now, let's work around it by using gcc...
+export CC=gcc
+export CXX=g++
 %configure  \
     --libdir=/%{_lib} \
     --enable-shared \
