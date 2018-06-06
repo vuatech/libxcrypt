@@ -6,12 +6,12 @@
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.0.0
+Version:	4.0.1
 Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
-Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
+Source0:	https://github.com/besser82/libxcrypt/archive/v%{version}.tar.gz
 BuildRequires:	findutils
 
 %description
@@ -25,7 +25,6 @@ Group:		System/Libraries
 Obsoletes:	%{mklibname xcrypt 2} < 4.0.0
 Provides:	glibc-crypt_blowfish = 1.3
 Provides:	eglibc-crypt_blowfish = 1.3
-Conflicts:	glibc < 6:2.27-10
 
 %description -n %{libname}
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
@@ -40,7 +39,6 @@ Provides:	%{name} = %{EVRD}
 Obsoletes:	%{mklibname xcrypt -d} < 4.0.0
 Provides:	glibc-crypt_blowfish-devel = 1.3
 Provides:	eglibc-crypt_blowfish-devel = 1.3
-Conflicts:	glibc-devel < 6:2.27-10
 
 %description -n %{develname}
 This package contains the header files and static libraries necessary
@@ -68,7 +66,7 @@ mkdir -p %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/pkgconfig/*.pc %{buildroot}%{_libdir}/pkgconfig/
 
 # Get rid of libtool crap.
-find %{buildroot} -name '*.la' -print -delete
+#find %{buildroot} -name '*.la' -print -delete
 
 # We do not need libowcrypt.*, since it is a SUSE
 # compat thing.  Software needing it to be build can
