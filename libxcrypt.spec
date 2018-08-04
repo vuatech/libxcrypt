@@ -7,12 +7,12 @@
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.0.1
-Release:	2
+Version:	4.1.1
+Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
-Source0:	https://github.com/besser82/libxcrypt/archive/v%{version}.tar.gz
+Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
 Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
 BuildRequires:	gcc
 BuildRequires:	findutils
@@ -58,8 +58,7 @@ to develop software using %{name} without requiring
 %{name} to be installed on the target system.
 
 %prep
-%setup -q
-%apply_patches
+%autosetup -p1
 
 %build
 autoreconf -fiv
@@ -76,10 +75,10 @@ export CC=gcc
     --enable-obsolete-api \
     --enable-weak-hashes
 
-%make
+%make_build
 
 %install
-%makeinstall_std
+%make_install
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/pkgconfig/*.pc %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/*.a %{buildroot}%{_libdir}/
