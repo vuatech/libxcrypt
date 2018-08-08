@@ -3,7 +3,7 @@
 %define develname %mklibname crypt -d
 %define staticname %mklibname crypt -d -s
 
-%global optflags %{optflags} -Ofast -falign-functions=32 -fno-math-errno -fno-trapping-math
+%global optflags %{optflags} -Ofast -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
