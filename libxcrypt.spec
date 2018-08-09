@@ -3,18 +3,18 @@
 %define develname %mklibname crypt -d
 %define staticname %mklibname crypt -d -s
 
-%global optflags %{optflags} -Ofast -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing
+%global optflags %{optflags} -Ofast -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fuse-ld=bfd
+%global ldflags %{optflags} -Ofast -fuse-ld=bfd
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.1.1
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
-Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
+Source0:	https://github.com/besser82/libxcrypt/archive/v%{version}.tar.gz
 #Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
-BuildRequires:	gcc
 BuildRequires:	findutils
 
 %description
@@ -63,11 +63,6 @@ to develop software using %{name} without requiring
 %build
 autoreconf -fiv
 
-# FIXME if libxcrypt is built with clang, building the user-manager package
-# fails complaining about an undefined reference to 'crypt' even though it
-# does show up in objdump -x.
-# For now, let's work around it by using gcc...
-export CC=gcc
 %configure  \
     --libdir=/%{_lib} \
     --enable-shared \
@@ -87,6 +82,16 @@ mv %{buildroot}/%{_lib}/*.a %{buildroot}%{_libdir}/
 # compat thing.  Software needing it to be build can
 # be patched easily to just link against '-lcrypt'.
 find %{buildroot} -name 'libow*' -print -delete
+
+%check
+# Make sure the symbol versioning script worked
+if ! nm $(ls .libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; then
+	echo "Symbol versioning script seems to have messed up"
+	echo "Make sure this is fixed unless you want to break pam."
+	echo "You may want to try a different ld."
+	exit 1
+fi
+
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
