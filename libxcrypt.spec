@@ -13,7 +13,7 @@ Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
-Source0:	https://github.com/besser82/libxcrypt/archive/v%{version}.tar.gz
+Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
 #Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
 BuildRequires:	findutils
 
