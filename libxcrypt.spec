@@ -101,7 +101,7 @@ fi
 %{_includedir}/*.h
 /%{_lib}/libcrypt.so
 %{_libdir}/pkgconfig/*.pc
-%{_mandir}/man3/crypt_*.3*
+%{_mandir}/man3/crypt*.3*
 %{_mandir}/man5/crypt.5*
 
 %files -n %{staticname}
