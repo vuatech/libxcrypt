@@ -9,7 +9,7 @@
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.2.3
-Release:	2
+Release:	3
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -92,12 +92,6 @@ if ! nm $(ls .libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; 
 	echo "You may want to try a different ld."
 	exit 1
 fi
-
-%post
-# compat level for broken symlink
-%ifarch aarch64 x86_64 znver1
-ln -sf /%{_lib}/libcrypt.so.%{major} /usr/lib/libcrypt.so
-%endif
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
