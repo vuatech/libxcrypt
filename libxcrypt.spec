@@ -9,7 +9,7 @@
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.2.3
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -77,6 +77,7 @@ autoreconf -fiv
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/pkgconfig/*.pc %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/*.a %{buildroot}%{_libdir}/
+/lib64/libcrypt.so.1 /usr/lib/libcrypt.so
 
 # We do not need libowcrypt.*, since it is a SUSE
 # compat thing.  Software needing it to be build can
@@ -92,6 +93,11 @@ if ! nm $(ls .libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; 
 	exit 1
 fi
 
+%post
+# compat level for broken symlink
+%ifarch aarch64 x86_64 znver1
+ln -sf /%{_lib}/libcrypt.so.%{major} /usr/lib/libcrypt.so
+%endif
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
