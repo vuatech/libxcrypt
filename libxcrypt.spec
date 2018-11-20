@@ -77,7 +77,6 @@ autoreconf -fiv
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/pkgconfig/*.pc %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/*.a %{buildroot}%{_libdir}/
-/lib64/libcrypt.so.1 /usr/lib/libcrypt.so
 
 # We do not need libowcrypt.*, since it is a SUSE
 # compat thing.  Software needing it to be build can
