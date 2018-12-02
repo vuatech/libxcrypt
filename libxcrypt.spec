@@ -8,8 +8,8 @@
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.2.3
-Release:	3
+Version:	4.4.0
+Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -99,9 +99,11 @@ fi
 %doc AUTHORS NEWS README.md
 %{_includedir}/*.h
 /%{_lib}/libcrypt.so
+/%{_lib}/libxcrypt.so
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/crypt*.3*
 %{_mandir}/man5/crypt.5*
 
 %files -n %{staticname}
 %{_libdir}/libcrypt.a
+%{_libdir}/libxcrypt.a

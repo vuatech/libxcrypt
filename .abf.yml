@@ -1,2 +1,4 @@
-sources:
+removed_sources:
   libxcrypt-4.2.3.tar.gz: 4514acb30ab039030f38da24edc215aa4ca1af78
+sources:
+  libxcrypt-4.4.0.tar.gz: c0363daca6bb30cc3b90aef7087d75cd4be84c4d
