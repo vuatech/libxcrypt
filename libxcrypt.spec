@@ -92,6 +92,8 @@ if ! nm $(ls .libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; 
 	exit 1
 fi
 
+make check
+
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
 
