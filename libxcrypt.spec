@@ -68,7 +68,7 @@ autoreconf -fiv
     --enable-shared \
     --enable-static \
     --enable-obsolete-api \
-    --enable-weak-hashes || (cat config.log && die)
+    --enable-weak-hashes || (cat config.log && exit 1)
 
 %make_build
 
