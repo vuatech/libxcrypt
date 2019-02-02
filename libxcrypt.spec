@@ -3,7 +3,9 @@
 %define develname %mklibname crypt -d
 %define staticname %mklibname crypt -d -s
 
+%ifnarch %{arm}
 %global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fuse-ld=bfd
+%endif
 %global ldflags %{optflags} -O3 -fuse-ld=bfd
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
