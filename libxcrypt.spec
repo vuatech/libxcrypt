@@ -5,8 +5,11 @@
 
 %ifnarch %{arm}
 %global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fuse-ld=bfd
+%else
+%global optflags %{optflags} -O2 -fno-strict-aliasing -fuse-ld=bfd
 %endif
-%global ldflags %{optflags} -O3 -fuse-ld=bfd
+
+%global ldflags %{ldflags} -fuse-ld=bfd
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
@@ -88,13 +91,13 @@ find %{buildroot} -name 'libow*' -print -delete
 %check
 # Make sure the symbol versioning script worked
 if ! nm $(ls .libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; then
-	echo "Symbol versioning script seems to have messed up"
-	echo "Make sure this is fixed unless you want to break pam."
-	echo "You may want to try a different ld."
+	printf '%s\n' 'Symbol versioning script seems to have messed up.'
+	printf '%s\n' 'Make sure this is fixed unless you want to break pam.'
+	printf '%s\n' 'You may want to try a different ld.'
 	exit 1
 fi
-
-make check
+# (tpg) all tests MUST pass
+make check || (cat test-suite.log && exit 1)
 
 %files -n %{libname}
 /%{_lib}/lib*.so.%{major}*
