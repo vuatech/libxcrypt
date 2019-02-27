@@ -3,6 +3,11 @@
 %define develname %mklibname crypt -d
 %define staticname %mklibname crypt -d -s
 
+# We ship a static library here -- LTO bytecode rather than
+# object code in .o files packaged into a static library breaks
+# using different compilers
+%global _disable_lto 1
+
 %ifnarch %{arm}
 %global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fuse-ld=bfd
 %else
