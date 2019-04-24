@@ -16,10 +16,17 @@
 
 %global ldflags %{ldflags} -fuse-ld=bfd
 
+# (tpg) enable PGO build
+%ifnarch riscv64
+%bcond_without pgo
+%else
+%bcond_with pgo
+%endif
+
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.4
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -73,6 +80,34 @@ to develop software using %{name} without requiring
 %build
 autoreconf -fiv
 
+%if %{with pgo}
+export LLVM_PROFILE_FILE=%{name}-%p.profile.d
+export LD_LIBRARY_PATH="$(pwd)"
+CFLAGS="%{optflags} -fprofile-instr-generate" \
+CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+FFLAGS="$CFLAGS" \
+FCFLAGS="$CFLAGS" \
+LDFLAGS="%{ldflags} -fprofile-instr-generate" \
+%configure  \
+    --libdir=/%{_lib} \
+    --enable-shared \
+    --enable-static \
+    --enable-obsolete-api \
+    --enable-weak-hashes || (cat config.log && exit 1)
+
+%make_build
+
+make check
+unset LD_LIBRARY_PATH
+unset LLVM_PROFILE_FILE
+llvm-profdata merge --output=%{name}.profile *.profile.d
+
+make clean
+
+CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+%endif
 %configure  \
     --libdir=/%{_lib} \
     --enable-shared \
