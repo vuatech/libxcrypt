@@ -17,7 +17,7 @@
 %global ldflags %{ldflags} -fuse-ld=bfd
 
 # (tpg) enable PGO build
-%ifnarch riscv64
+%ifnarch riscv64 %{arm}
 %bcond_without pgo
 %else
 %bcond_with pgo
