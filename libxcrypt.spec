@@ -9,10 +9,12 @@
 %global _disable_lto 1
 
 %ifnarch %{arm}
-%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -Wno-error=profile-instr-out-of-date
+%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -Wno-error=profile-instr-out-of-date -fuse-ld=bfd
 %else
-%global optflags %{optflags} -O2 -fno-strict-aliasing -Wno-error=profile-instr-out-of-date
+%global optflags %{optflags} -O2 -fno-strict-aliasing -Wno-error=profile-instr-out-of-date -fuse-ld=bfd
 %endif
+
+%global ldflags %{ldflags}  -fuse-ld=bfd
 
 # (tpg) enable PGO build
 %ifnarch riscv64 %{arm}
@@ -94,7 +96,7 @@ LDFLAGS="%{ldflags} -fprofile-instr-generate" \
     --disable-failure-tokens \
     --enable-obsolete-api=yes || (cat config.log && exit 1)
 
-%make_build -j1
+%make_build
 
 make check
 unset LD_LIBRARY_PATH
@@ -115,7 +117,7 @@ LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
     --disable-failure-tokens \
     --enable-obsolete-api=yes || (cat config.log && exit 1)
 
-%make_build -j1
+%make_build
 
 %install
 %make_install
