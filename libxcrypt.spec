@@ -9,12 +9,10 @@
 %global _disable_lto 1
 
 %ifnarch %{arm}
-%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fuse-ld=bfd
+%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing
 %else
-%global optflags %{optflags} -O2 -fno-strict-aliasing -fuse-ld=bfd
+%global optflags %{optflags} -O2 -fno-strict-aliasing
 %endif
-
-%global ldflags %{ldflags} -fuse-ld=bfd
 
 # (tpg) enable PGO build
 %ifnarch riscv64 %{arm}
@@ -25,7 +23,7 @@
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.4.6
+Version:	4.4.7
 Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
@@ -131,10 +129,10 @@ find %{buildroot} -name 'libow*' -print -delete
 %check
 # Make sure the symbol versioning script worked
 if ! nm $(ls .libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; then
-	printf '%s\n' 'Symbol versioning script seems to have messed up.'
-	printf '%s\n' 'Make sure this is fixed unless you want to break pam.'
-	printf '%s\n' 'You may want to try a different ld.'
-	exit 1
+    printf '%s\n' 'Symbol versioning script seems to have messed up.'
+    printf '%s\n' 'Make sure this is fixed unless you want to break pam.'
+    printf '%s\n' 'You may want to try a different ld.'
+    exit 1
 fi
 # FIXME as of libxcrypt 4.4.3-2, clang 7.0.1-1, binutils 2.32-1
 # make check fails on 32-bit ARM:
