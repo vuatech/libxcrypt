@@ -9,9 +9,9 @@
 %global _disable_lto 1
 
 %ifnarch %{arm}
-%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing
+%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -Wno-error=profile-instr-out-of-date
 %else
-%global optflags %{optflags} -O2 -fno-strict-aliasing
+%global optflags %{optflags} -O2 -fno-strict-aliasing -Wno-error=profile-instr-out-of-date
 %endif
 
 # (tpg) enable PGO build
