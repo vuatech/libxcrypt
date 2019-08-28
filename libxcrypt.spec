@@ -90,10 +90,11 @@ LDFLAGS="%{ldflags} -fprofile-instr-generate" \
     --libdir=/%{_lib} \
     --enable-shared \
     --enable-static \
-    --enable-obsolete-api \
-    --enable-weak-hashes || (cat config.log && exit 1)
+    --enable-hashes=all \
+    --disable-failure-tokens \
+    --enable-obsolete-api=yes || (cat config.log && exit 1)
 
-%make_build
+%make_build -j1
 
 make check
 unset LD_LIBRARY_PATH
@@ -110,10 +111,11 @@ LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
     --libdir=/%{_lib} \
     --enable-shared \
     --enable-static \
-    --enable-obsolete-api \
-    --enable-weak-hashes || (cat config.log && exit 1)
+    --enable-hashes=all \
+    --disable-failure-tokens \
+    --enable-obsolete-api=yes || (cat config.log && exit 1)
 
-%make_build
+%make_build -j1
 
 %install
 %make_install
