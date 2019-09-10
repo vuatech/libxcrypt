@@ -8,10 +8,14 @@
 # using different compilers
 %global _disable_lto 1
 
-%ifnarch %{arm}
+%ifarch %{arm} %{ix86} %{x86_64} aarch64
 %global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -Wno-error=profile-instr-out-of-date -fuse-ld=bfd
-%else
+%endif
+%ifarch %{arm}
 %global optflags %{optflags} -O2 -fno-strict-aliasing -Wno-error=profile-instr-out-of-date -fuse-ld=bfd
+%endif
+%ifarch %{riscv}
+%global optflags %{optflags} -O2 -fno-strict-aliasing -fuse-ld=bfd
 %endif
 
 %global ldflags %{ldflags}  -fuse-ld=bfd
