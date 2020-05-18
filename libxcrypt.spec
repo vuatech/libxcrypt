@@ -1,7 +1,17 @@
+# libxcrypt is used by util-linux
+%ifarch %{x86_64}
+%bcond_without compat32
+%else
+%bcond_with compat32
+%endif
+
 %define major 1
 %define libname %mklibname crypt %{major}
 %define develname %mklibname crypt -d
 %define staticname %mklibname crypt -d -s
+%define lib32name libcrypt%{major}
+%define devel32name libcrypt-devel
+%define static32name libcrypt-static-devel
 
 # We ship a static library here -- LTO bytecode rather than
 # object code in .o files packaged into a static library breaks
@@ -9,16 +19,12 @@
 %global _disable_lto 1
 
 %ifarch %{arm} %{ix86} %{x86_64} aarch64
-%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -Wno-error=profile-instr-out-of-date -fuse-ld=bfd
+%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fuse-ld=bfd
 %endif
-%ifarch %{arm}
-%global optflags %{optflags} -O2 -fno-strict-aliasing -Wno-error=profile-instr-out-of-date -fuse-ld=bfd
-%endif
-%ifarch %{riscv}
+%ifarch %{arm} %{riscv}
 %global optflags %{optflags} -O2 -fno-strict-aliasing -fuse-ld=bfd
 %endif
-
-%global ldflags %{ldflags}  -fuse-ld=bfd
+%global ldflags %{ldflags} -fuse-ld=bfd
 
 # (tpg) enable PGO build
 %ifnarch riscv64 %{arm}
@@ -30,7 +36,7 @@
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.16
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -59,7 +65,6 @@ blowfish encryption.
 Summary:	Development libraries for %{name}
 Group:		Development/C
 Requires:	%{libname} = %{EVRD}
-Provides:	%{name} = %{EVRD}
 Obsoletes:	%{mklibname xcrypt -d} < 4.0.0
 Provides:	glibc-crypt_blowfish-devel = 1.3
 Provides:	eglibc-crypt_blowfish-devel = 1.3
@@ -78,12 +83,59 @@ This package contains the static libraries necessary
 to develop software using %{name} without requiring
 %{name} to be installed on the target system.
 
+%if %{with compat32}
+%package -n %{lib32name}
+Summary:	Crypt Library for DES, MD5, Blowfish and others (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32name}
+Libxcrypt is a replacement for libcrypt, which comes with the GNU C
+Library. It supports DES crypt, MD5, SHA256, SHA512 and passwords with
+blowfish encryption. (32-bit)
+
+%package -n %{devel32name}
+Summary:	Development libraries for %{name} (32-bit)
+Group:		Development/C
+Requires:	%{lib32name} = %{EVRD}
+Requires:	%{develname} = %{EVRD}
+
+%description -n %{devel32name}
+This package contains the header files necessary
+to develop software using %{name}. (32-bit)
+
+%package -n %{static32name}
+Summary:	Static libraries for %{name} (32-bit)
+Group:		Development/C
+Requires:	%{devel32name} = %{EVRD}
+
+%description -n %{static32name}
+This package contains the static libraries necessary
+to develop software using %{name} without requiring
+%{name} to be installed on the target system.
+%endif
+
 %prep
 %autosetup -p1
 
 %build
 autoreconf -fiv
 
+export CONFIGURE_TOP="$(pwd)"
+%if %{with compat32}
+mkdir build32
+cd build32
+%configure32 \
+    --enable-shared \
+    --enable-static \
+    --enable-hashes=all \
+    --disable-failure-tokens \
+    --enable-obsolete-api=yes || (cat config.log && exit 1)
+%make_build
+cd ..
+%endif
+
+mkdir build
+cd build
 %if %{with pgo}
 export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
@@ -124,7 +176,10 @@ LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 %make_build
 
 %install
-%make_install
+%if %{with compat32}
+%make_install -C build32
+%endif
+%make_install -C build
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/pkgconfig/*.pc %{buildroot}%{_libdir}/pkgconfig/
 mv %{buildroot}/%{_lib}/*.a %{buildroot}%{_libdir}/
@@ -136,10 +191,20 @@ find %{buildroot} -name 'libow*' -print -delete
 
 %check
 # Make sure the symbol versioning script worked
-if ! nm $(ls .libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; then
-    printf '%s\n' 'Symbol versioning script seems to have messed up.'
-    printf '%s\n' 'Make sure this is fixed unless you want to break pam.'
-    printf '%s\n' 'You may want to try a different ld.'
+%if %{with compat32}
+if ! nm $(ls build32/.libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; then
+    echo 'Symbol versioning script seems to have messed up.'
+    echo 'Make sure this is fixed unless you want to break pam.'
+    echo 'You may want to try a different 32-bit ld.'
+    exit 1
+fi
+make check -C build32
+%endif
+
+if ! nm $(ls build/.libs/libcrypt.so.%{major}* |head -n1) |grep -q 'crypt_r@GLIBC_2'; then
+    echo 'Symbol versioning script seems to have messed up.'
+    echo 'Make sure this is fixed unless you want to break pam.'
+    echo 'You may want to try a different ld.'
     exit 1
 fi
 # FIXME as of libxcrypt 4.4.3-2, clang 7.0.1-1, binutils 2.32-1
@@ -158,7 +223,7 @@ fi
 # in GOST, we let this pass for now.
 %ifnarch %{arm}
 # (tpg) all tests MUST pass
-make check || (cat test-suite.log && exit 1)
+make check -C build || (cat test-suite.log && exit 1)
 %endif
 
 %files -n %{libname}
@@ -176,3 +241,17 @@ make check || (cat test-suite.log && exit 1)
 %files -n %{staticname}
 %{_libdir}/libcrypt.a
 %{_libdir}/libxcrypt.a
+
+%if %{with compat32}
+%files -n %{lib32name}
+%{_prefix}/lib/lib*.so.%{major}*
+
+%files -n %{devel32name}
+%{_prefix}/lib/libcrypt.so
+%{_prefix}/lib/libxcrypt.so
+%{_prefix}/lib/pkgconfig/*.pc
+
+%files -n %{static32name}
+%{_prefix}/lib/libcrypt.a
+%{_prefix}/lib/libxcrypt.a
+%endif
