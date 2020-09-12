@@ -19,12 +19,12 @@
 %global _disable_lto 1
 
 %ifarch %{arm} %{ix86} %{x86_64} aarch64
-%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fuse-ld=bfd
+%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fPIC -Wno-gnu-statement-expression -fuse-ld=bfd
 %endif
 %ifarch %{arm} %{riscv}
-%global optflags %{optflags} -O2 -fno-strict-aliasing -fuse-ld=bfd
+%global optflags %{optflags} -O2 -fno-strict-aliasing -fPIC -Wno-gnu-statement-expression -fuse-ld=bfd
 %endif
-%global ldflags %{ldflags} -fuse-ld=bfd
+%global ldflags %{ldflags} -fPIC -fuse-ld=bfd
 
 # (tpg) enable PGO build
 %ifnarch riscv64 %{arm}
@@ -36,7 +36,7 @@
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.17
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -147,7 +147,7 @@ LDFLAGS="%{ldflags} -fprofile-instr-generate" \
 %configure  \
     --libdir=/%{_lib} \
     --enable-shared \
-    --enable-static \
+    --disable-static \
     --enable-hashes=all \
     --disable-failure-tokens \
     --enable-obsolete-api=yes || (cat config.log && exit 1)
@@ -161,9 +161,13 @@ llvm-profdata merge --output=%{name}.profile *.profile.d
 
 make clean
 
-CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+# profile-instr-out-of-date and profile-instr-unprofiled are
+# caused by the static lib not being used during make check.
+# Only the shared lib and everything shared between the shared
+# and static lib is profiled
+CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile) -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile) -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled" \
+LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile) -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled" \
 %endif
 %configure  \
     --libdir=/%{_lib} \
