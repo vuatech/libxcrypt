@@ -43,7 +43,7 @@ Url:		https://github.com/besser82/libxcrypt
 Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
 #Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
 BuildRequires:	findutils
-BuildRequires:	python
+BuildRequires:	perl(open)
 
 %description
 Libxcrypt is a replacement for libcrypt, which comes with the GNU C
