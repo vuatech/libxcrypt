@@ -35,7 +35,7 @@
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.4.19
+Version:	4.4.20
 Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
