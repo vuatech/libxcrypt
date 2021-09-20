@@ -35,12 +35,12 @@
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.4.25
+Version:	4.4.26
 Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
-Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.gz
+Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.xz
 #Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
 BuildRequires:	findutils
 BuildRequires:	perl(open)
