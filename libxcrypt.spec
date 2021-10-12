@@ -218,7 +218,7 @@ make check -C build || (cat test-suite.log && exit 1)
 /%{_lib}/lib*.so.%{major}*
 
 %files -n %{develname}
-%doc AUTHORS NEWS README.md
+%doc AUTHORS NEWS
 %{_includedir}/*.h
 /%{_lib}/libcrypt.so
 /%{_lib}/libxcrypt.so
