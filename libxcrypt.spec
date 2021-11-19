@@ -24,11 +24,11 @@
 %ifarch %{arm} %{riscv}
 %global optflags %{optflags} -O2 -fno-strict-aliasing -fPIC -Wno-gnu-statement-expression
 %endif
-%global ldflags %{ldflags} -fPIC
+%global build_ldflags %{build_ldflags} -fPIC
 
 # (tpg) enable PGO build
 %ifnarch riscv64 %{arm}
-%bcond_with pgo
+%bcond_without pgo
 %else
 %bcond_with pgo
 %endif
@@ -36,7 +36,7 @@
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.26
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -131,6 +131,7 @@ cd build32
     --enable-hashes=all \
     --disable-failure-tokens \
     --enable-obsolete-api=yes || (cat config.log && exit 1)
+
 %make_build
 cd ..
 %endif
@@ -138,13 +139,13 @@ cd ..
 mkdir build
 cd build
 %if %{with pgo}
-export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
-CFLAGS="%{optflags} -fprofile-instr-generate" \
-CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+
+CFLAGS="%{optflags} -fprofile-generate" \
+CXXFLAGS="%{optflags} -fprofile-generate" \
 FFLAGS="$CFLAGS" \
 FCFLAGS="$CFLAGS" \
-LDFLAGS="%{ldflags} -fprofile-instr-generate" \
+LDFLAGS="%{build_ldflags} -fprofile-generate" \
 %configure  \
     --libdir=/%{_lib} \
     --enable-shared \
@@ -157,8 +158,9 @@ LDFLAGS="%{ldflags} -fprofile-instr-generate" \
 
 make check
 unset LD_LIBRARY_PATH
-unset LLVM_PROFILE_FILE
-llvm-profdata merge --output=%{name}.profile *.profile.d
+llvm-profdata merge --output=%{name}-llvm.profdata *.profraw
+PROFDATA="$(realpath %{name}-llvm.profdata)"
+rm -f *.profraw
 
 make clean
 
@@ -166,9 +168,9 @@ make clean
 # caused by the static lib not being used during make check.
 # Only the shared lib and everything shared between the shared
 # and static lib is profiled
-CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile) -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile) -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled" \
-LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile) -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled" \
+CFLAGS="%{optflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin" \
+CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin" \
+LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin" \
 %endif
 %configure  \
     --libdir=/%{_lib} \
@@ -223,8 +225,8 @@ make check -C build || (cat test-suite.log && exit 1)
 /%{_lib}/libcrypt.so
 /%{_lib}/libxcrypt.so
 %{_libdir}/pkgconfig/*.pc
-%{_mandir}/man3/crypt*.3*
-%{_mandir}/man5/crypt.5*
+%doc %{_mandir}/man3/crypt*.3*
+%doc %{_mandir}/man5/crypt.5*
 
 %files -n %{staticname}
 %{_libdir}/libcrypt.a
