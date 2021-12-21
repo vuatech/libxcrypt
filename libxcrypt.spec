@@ -27,16 +27,12 @@
 %global build_ldflags %{build_ldflags} -fPIC
 
 # (tpg) enable PGO build
-%ifnarch riscv64 %{arm}
 %bcond_without pgo
-%else
-%bcond_with pgo
-%endif
 
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.4.26
-Release:	2
+Version:	4.4.27
+Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
