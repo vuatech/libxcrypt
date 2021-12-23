@@ -32,7 +32,7 @@
 Summary:	Crypt Library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.27
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -154,7 +154,7 @@ LDFLAGS="%{build_ldflags} -fprofile-generate" \
 
 make check
 unset LD_LIBRARY_PATH
-llvm-profdata merge --output=%{name}-llvm.profdata *.profraw
+llvm-profdata merge --output=%{name}-llvm.profdata $(find . -name "*.profraw" -type f)
 PROFDATA="$(realpath %{name}-llvm.profdata)"
 rm -f *.profraw
 
