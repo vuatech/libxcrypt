@@ -13,18 +13,7 @@
 %define devel32name libcrypt-devel
 %define static32name libcrypt-static-devel
 
-# We ship a static library here -- LTO bytecode rather than
-# object code in .o files packaged into a static library breaks
-# using different compilers
-%global _disable_lto 1
-
-%ifarch %{arm} %{ix86} %{x86_64} aarch64
-%global optflags %{optflags} -O3 -falign-functions=32 -fno-math-errno -fno-trapping-math -fno-strict-aliasing -fPIC -Wno-gnu-statement-expression
-%endif
-%ifarch %{arm} %{riscv}
-%global optflags %{optflags} -O2 -fno-strict-aliasing -fPIC -Wno-gnu-statement-expression
-%endif
-%global build_ldflags %{build_ldflags} -fPIC
+%global optflags %{optflags} -O3
 
 # (tpg) enable PGO build
 %bcond_without pgo
@@ -32,7 +21,7 @@
 Summary:	Extended crypt library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.30
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -138,6 +127,7 @@ export CONFIGURE_TOP="$(pwd)"
 %if %{with compat32}
 mkdir build32
 cd build32
+export CFLAGS="$CFLAGS -fno-strict-aliasing"
 %configure32 \
     ac_cv_func_arc4random_buf=no \
     --enable-shared \
@@ -206,6 +196,35 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-o
 # compat thing.  Software needing it to be build can
 # be patched easily to just link against '-lcrypt'.
 find %{buildroot} -name 'libow*' -print -delete
+
+# (tpg) strip LTO from "LLVM IR bitcode" files
+check_convert_bitcode() {
+    printf '%s\n' "Checking for LLVM IR bitcode"
+    llvm_file_name=$(realpath ${1})
+    llvm_file_type=$(file ${llvm_file_name})
+
+    if printf '%s\n' "${llvm_file_type}" | grep -q "LLVM IR bitcode"; then
+# recompile without LTO
+	clang %{optflags} -fno-lto -Wno-unused-command-line-argument -x ir ${llvm_file_name} -c -o ${llvm_file_name}
+    elif printf '%s\n' "${llvm_file_type}" | grep -q "current ar archive"; then
+	printf '%s\n' "Unpacking ar archive ${llvm_file_name} to check for LLVM bitcode components."
+# create archive stage for objects
+	archive_stage=$(mktemp -d)
+	archive=${llvm_file_name}
+	cd ${archive_stage}
+	ar x ${archive}
+	for archived_file in $(find -not -type d); do
+	    check_convert_bitcode ${archived_file}
+	    printf '%s\n' "Repacking ${archived_file} into ${archive}."
+	    ar r ${archive} ${archived_file}
+	done
+	cd ..
+    fi
+}
+
+for i in $(find %{buildroot} -type f -name "*.[ao]"); do
+    check_convert_bitcode ${i}
+done
 
 %check
 # FIXME as of libxcrypt 4.4.3-2, clang 7.0.1-1, binutils 2.32-1
