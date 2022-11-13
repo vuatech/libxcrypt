@@ -29,7 +29,7 @@
 # (tpg) enable PGO build
 %bcond_without pgo
 
-Summary:	Crypt Library for DES, MD5, Blowfish and others
+Summary:	Extended crypt library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.30
 Release:	1
@@ -43,13 +43,19 @@ Patch100:	https://github.com/besser82/libxcrypt/commit/239664bf18fc2bc093d8dbaa1
 Patch101:	https://github.com/besser82/libxcrypt/commit/bb1721800932268a537c804a4b7655af8c62d5e8.patch
 Patch102:	https://github.com/besser82/libxcrypt/commit/a2dcf74fce24aeba2a7e191a4b294b8f9622a3a8.patch
 Patch103:	https://github.com/besser82/libxcrypt/commit/17cf4ce8af5a2a1af4c0f52260019cbae01835b8.patch
+Patch104:	https://github.com/besser82/libxcrypt/commit/502c671e9115f147a6316191459afa55ab2f5345.patch
 BuildRequires:	findutils
 BuildRequires:	perl(open)
 
 %description
-Libxcrypt is a replacement for libcrypt, which comes with the GNU C
-Library. It supports DES crypt, MD5, SHA256, SHA512 and passwords with
-blowfish encryption.
+libxcrypt is a modern library for one-way hashing of passwords.
+It supports a wide variety of both modern and historical hashing
+methods: yescrypt, gost-yescrypt, scrypt, bcrypt, sha512crypt,
+sha256crypt, md5crypt, SunMD5, sha1crypt, NT, bsdicrypt, bigcrypt,
+and descrypt. It provides the traditional Unix crypt and crypt_r
+interfaces, as well as a set of extended interfaces pioneered by
+Openwall Linux, crypt_rn, crypt_ra, crypt_gensalt, crypt_gensalt_rn,
+and crypt_gensalt_ra.
 
 %package -n %{libname}
 Summary:	Crypt Library for DES, MD5, Blowfish and others
@@ -59,9 +65,14 @@ Provides:	glibc-crypt_blowfish = 1.3
 Provides:	eglibc-crypt_blowfish = 1.3
 
 %description -n %{libname}
-Libxcrypt is a replacement for libcrypt, which comes with the GNU C
-Library. It supports DES crypt, MD5, SHA256, SHA512 and passwords with
-blowfish encryption.
+libxcrypt is a modern library for one-way hashing of passwords.
+It supports a wide variety of both modern and historical hashing
+methods: yescrypt, gost-yescrypt, scrypt, bcrypt, sha512crypt,
+sha256crypt, md5crypt, SunMD5, sha1crypt, NT, bsdicrypt, bigcrypt,
+and descrypt. It provides the traditional Unix crypt and crypt_r
+interfaces, as well as a set of extended interfaces pioneered by
+Openwall Linux, crypt_rn, crypt_ra, crypt_gensalt, crypt_gensalt_rn,
+and crypt_gensalt_ra.
 
 %package -n %{develname}
 Summary:	Development libraries for %{name}

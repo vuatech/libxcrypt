@@ -1,0 +1,41 @@
+From 502c671e9115f147a6316191459afa55ab2f5345 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Esser?= <besser82@fedoraproject.org>
+Date: Sat, 12 Nov 2022 09:19:33 +0100
+Subject: [PATCH] crypt-des.c: Fix Werror=strict-overflow with GCC 12.x.
+
+Fixes #155 and #163.
+---
+ lib/crypt-des.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/crypt-des.c b/lib/crypt-des.c
+index 49272a62..d2e7cd84 100644
+--- a/lib/crypt-des.c
++++ b/lib/crypt-des.c
+@@ -114,7 +114,7 @@ des_gen_hash (struct des_ctx *ctx, uint32_t count, uint8_t *output,
+       c1 = *sptr++;
+       *output++ = ascii64[c1 >> 2];
+       c1 = (c1 & 0x03) << 4;
+-      if (sptr >= end)
++      if (end - sptr <= 0)
+         {
+           *output++ = ascii64[c1];
+           break;
+@@ -124,7 +124,7 @@ des_gen_hash (struct des_ctx *ctx, uint32_t count, uint8_t *output,
+       c1 |= c2 >> 4;
+       *output++ = ascii64[c1];
+       c1 = (c2 & 0x0f) << 2;
+-      if (sptr >= end)
++      if (end - sptr <= 0)
+         {
+           *output++ = ascii64[c1];
+           break;
+@@ -135,7 +135,7 @@ des_gen_hash (struct des_ctx *ctx, uint32_t count, uint8_t *output,
+       *output++ = ascii64[c1];
+       *output++ = ascii64[c2 & 0x3f];
+     }
+-  while (sptr < end);
++  while (end - sptr > 0);
+   *output = '\0';
+ }
+ #endif
