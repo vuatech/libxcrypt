@@ -20,19 +20,14 @@
 
 Summary:	Extended crypt library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.4.30
-Release:	2
+Version:	4.4.31
+Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
 Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.xz
 #Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
 # (tpg) upstream patches
-Patch100:	https://github.com/besser82/libxcrypt/commit/239664bf18fc2bc093d8dbaa1fb0a0307651897f.patch
-Patch101:	https://github.com/besser82/libxcrypt/commit/bb1721800932268a537c804a4b7655af8c62d5e8.patch
-Patch102:	https://github.com/besser82/libxcrypt/commit/a2dcf74fce24aeba2a7e191a4b294b8f9622a3a8.patch
-Patch103:	https://github.com/besser82/libxcrypt/commit/17cf4ce8af5a2a1af4c0f52260019cbae01835b8.patch
-Patch104:	https://github.com/besser82/libxcrypt/commit/502c671e9115f147a6316191459afa55ab2f5345.patch
 BuildRequires:	findutils
 BuildRequires:	perl(open)
 
@@ -218,6 +213,7 @@ check_convert_bitcode() {
 	    printf '%s\n' "Repacking ${archived_file} into ${archive}."
 	    ar r ${archive} ${archived_file}
 	done
+	ranlib ${archive}
 	cd ..
     fi
 }
