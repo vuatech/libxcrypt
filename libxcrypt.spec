@@ -15,13 +15,16 @@
 
 %global optflags %{optflags} -O3
 
+# (tpg) use LLVM/polly for polyhedra optimization and automatic vector code generation
+%define pollyflags -mllvm -polly -mllvm -polly-position=early -mllvm -polly-parallel=true -fopenmp -fopenmp-version=50 -mllvm -polly-dependences-computeout=5000000 -mllvm -polly-detect-profitability-min-per-loop-insts=40 -mllvm -polly-tiling=true -mllvm -polly-prevect-width=256 -mllvm -polly-vectorizer=stripmine -mllvm -polly-omp-backend=LLVM -mllvm -polly-num-threads=0 -mllvm -polly-scheduling=dynamic -mllvm -polly-scheduling-chunksize=1 -mllvm -polly-invariant-load-hoisting -mllvm -polly-loopfusion-greedy -mllvm -polly-run-inliner -mllvm -polly-run-dce -mllvm -polly-enable-delicm=true -mllvm -extra-vectorizer-passes -mllvm -enable-cond-stores-vec -mllvm -slp-vectorize-hor-store -mllvm -enable-loopinterchange -mllvm -enable-loop-distribute -mllvm -enable-unroll-and-jam -mllvm -enable-loop-flatten -mllvm -interleave-small-loop-scalar-reduction -mllvm -unroll-runtime-multi-exit -mllvm -aggressive-ext-opt
+
 # (tpg) enable PGO build
 %bcond_without pgo
 
 Summary:	Extended crypt library for DES, MD5, Blowfish and others
 Name:		libxcrypt
 Version:	4.4.31
-Release:	1
+Release:	2
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
@@ -140,8 +143,8 @@ cd build
 %if %{with pgo}
 export LD_LIBRARY_PATH="$(pwd)"
 
-CFLAGS="%{optflags} -fprofile-generate" \
-CXXFLAGS="%{optflags} -fprofile-generate" \
+CFLAGS="%{optflags} -fprofile-generate %{pollyflags}" \
+CXXFLAGS="%{optflags} -fprofile-generate %{pollyflags}" \
 FFLAGS="$CFLAGS" \
 FCFLAGS="$CFLAGS" \
 LDFLAGS="%{build_ldflags} -fprofile-generate" \
@@ -167,8 +170,8 @@ make clean
 # caused by the static lib not being used during make check.
 # Only the shared lib and everything shared between the shared
 # and static lib is profiled
-CFLAGS="%{optflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin" \
-CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin" \
+CFLAGS="%{optflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin %{pollyflags}" \
+CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin %{pollyflags}" \
 LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-of-date -Wno-error=profile-instr-unprofiled -Wno-error=backend-plugin" \
 %endif
 %configure  \
