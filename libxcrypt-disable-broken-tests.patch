@@ -1,0 +1,16 @@
+diff -up libxcrypt-4.4.35/Makefile.am.omv~ libxcrypt-4.4.35/Makefile.am
+--- libxcrypt-4.4.35/Makefile.am.omv~	2023-06-06 20:55:49.411103508 +0200
++++ libxcrypt-4.4.35/Makefile.am	2023-06-06 20:56:50.053465798 +0200
+@@ -446,7 +446,11 @@ endif
+ TESTS = $(check_PROGRAMS)
+ 
+ if ENABLE_STATIC
+-TESTS += test/symbols-static.pl test/symbols-renames.pl
++# These tests are known to fail because at the time they're run,
++# the library contains LLVM bitcode (LTO intermediates) rather
++# than object code. It's converted later by spec-helper.
++# Disable the false positives for now.
++#TESTS += test/symbols-static.pl test/symbols-renames.pl
+ endif
+ 
+ if ENABLE_OBSOLETE_API

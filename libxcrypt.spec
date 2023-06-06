@@ -19,17 +19,21 @@
 %define pollyflags -mllvm -polly -mllvm -polly-position=early -mllvm -polly-parallel=true -fopenmp -fopenmp-version=50 -mllvm -polly-dependences-computeout=5000000 -mllvm -polly-detect-profitability-min-per-loop-insts=40 -mllvm -polly-tiling=true -mllvm -polly-prevect-width=256 -mllvm -polly-vectorizer=stripmine -mllvm -polly-omp-backend=LLVM -mllvm -polly-num-threads=0 -mllvm -polly-scheduling=dynamic -mllvm -polly-scheduling-chunksize=1 -mllvm -polly-invariant-load-hoisting -mllvm -polly-loopfusion-greedy -mllvm -polly-run-inliner -mllvm -polly-run-dce -mllvm -polly-enable-delicm=true -mllvm -extra-vectorizer-passes -mllvm -enable-cond-stores-vec -mllvm -slp-vectorize-hor-store -mllvm -enable-loopinterchange -mllvm -enable-loop-distribute -mllvm -enable-unroll-and-jam -mllvm -enable-loop-flatten -mllvm -interleave-small-loop-scalar-reduction -mllvm -unroll-runtime-multi-exit -mllvm -aggressive-ext-opt
 
 # (tpg) enable PGO build
+%if ! %{cross_compiling}
 %bcond_without pgo
+%else
+%bcond_with pgo
+%endif
 
 Summary:	Extended crypt library for DES, MD5, Blowfish and others
 Name:		libxcrypt
-Version:	4.4.34
+Version:	4.4.35
 Release:	1
 License:	LGPLv2+
 Group:		System/Libraries
 Url:		https://github.com/besser82/libxcrypt
-Source0:	https://github.com/besser82/libxcrypt/archive/%{name}-%{version}.tar.xz
-#Patch0:		libxcrypt-4.0.1-strict-aliasing.patch
+Source0:	https://github.com/besser82/libxcrypt/releases/download/v%{version}/libxcrypt-%{version}.tar.xz
+Patch0:		libxcrypt-disable-broken-tests.patch
 # (tpg) upstream patches
 BuildRequires:	findutils
 BuildRequires:	perl(open)
@@ -194,36 +198,6 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-o
 # compat thing.  Software needing it to be build can
 # be patched easily to just link against '-lcrypt'.
 find %{buildroot} -name 'libow*' -print -delete
-
-# (tpg) strip LTO from "LLVM IR bitcode" files
-check_convert_bitcode() {
-    printf '%s\n' "Checking for LLVM IR bitcode"
-    llvm_file_name=$(realpath ${1})
-    llvm_file_type=$(file ${llvm_file_name})
-
-    if printf '%s\n' "${llvm_file_type}" | grep -q "LLVM IR bitcode"; then
-# recompile without LTO
-	clang %{optflags} -fno-lto -Wno-unused-command-line-argument -x ir ${llvm_file_name} -c -o ${llvm_file_name}
-    elif printf '%s\n' "${llvm_file_type}" | grep -q "current ar archive"; then
-	printf '%s\n' "Unpacking ar archive ${llvm_file_name} to check for LLVM bitcode components."
-# create archive stage for objects
-	archive_stage=$(mktemp -d)
-	archive=${llvm_file_name}
-	cd ${archive_stage}
-	ar x ${archive}
-	for archived_file in $(find -not -type d); do
-	    check_convert_bitcode ${archived_file}
-	    printf '%s\n' "Repacking ${archived_file} into ${archive}."
-	    ar r ${archive} ${archived_file}
-	done
-	ranlib ${archive}
-	cd ..
-    fi
-}
-
-for i in $(find %{buildroot} -type f -name "*.[ao]"); do
-    check_convert_bitcode ${i}
-done
 
 %check
 # FIXME as of libxcrypt 4.4.3-2, clang 7.0.1-1, binutils 2.32-1
