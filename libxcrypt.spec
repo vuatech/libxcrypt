@@ -199,6 +199,7 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA -Wno-error=profile-instr-out-o
 # be patched easily to just link against '-lcrypt'.
 find %{buildroot} -name 'libow*' -print -delete
 
+%if ! %{cross_compiling}
 %check
 # FIXME as of libxcrypt 4.4.3-2, clang 7.0.1-1, binutils 2.32-1
 # make check fails on 32-bit ARM:
@@ -217,6 +218,7 @@ find %{buildroot} -name 'libow*' -print -delete
 %ifnarch %{arm}
 # (tpg) all tests MUST pass
 make check -C build || (cat test-suite.log && exit 1)
+%endif
 %endif
 
 %files -n %{libname}
